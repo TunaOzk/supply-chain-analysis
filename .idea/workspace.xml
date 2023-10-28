@@ -4,17 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01ac867b-8d51-458d-95b2-b956b53d2360" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/org/example/App.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/scala/samples/junit.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/scala/samples/scalatest.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/scala/samples/specs.scala" afterDir="false" />
+    <list default="true" id="0c3cc11f-6462-41b7-bc88-f4fadfd03a47" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/scala/edu/etu/MongoDBTest.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/scala/edu/etu/example.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,39 +20,56 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 8
-}]]></component>
-  <component name="ProjectId" id="2XLNwlWXICDPLTzCONw0w61JTd9" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2XMZpBetwlthWj44YmMXmGoBg9c" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Global Libraries",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mongo"
+    ]
   }
-}</component>
+}]]></component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean compile" />
+      <command value="mvn clean install" />
+    </option>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
       <option name="appServicePlanName" />
       <option name="appServicePlanResourceGroup" />
-      <option name="appSettingsKey" value="7e7b7d9c-6587-4afe-bc5c-c3a1ea6b2e7b" />
+      <option name="appSettingsKey" value="2e99930a-9ec4-4161-a913-8424e693e5cb" />
       <option name="artifact" />
       <option name="debugOptions" />
       <option name="deployment" />
@@ -82,13 +95,10 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <option name="filePath" />
+    <configuration name="MongoDBTest" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="edu.etu.MongoDBTest" />
+      <module name="SupplyChainAnalysis" />
+      <option name="VM_PARAMETERS" value="--add-exports java.base/sun.nio.ch=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -97,13 +107,16 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="01ac867b-8d51-458d-95b2-b956b53d2360" name="Changes" comment="" />
-      <created>1698404192221</created>
+      <changelist id="0c3cc11f-6462-41b7-bc88-f4fadfd03a47" name="Changes" comment="" />
+      <created>1698441092550</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1698404192221</updated>
-      <workItem from="1698404193088" duration="437000" />
-      <workItem from="1698404646190" duration="85000" />
+      <updated>1698441092550</updated>
+      <workItem from="1698441097588" duration="145000" />
+      <workItem from="1698443760937" duration="1917000" />
+      <workItem from="1698482722023" duration="2269000" />
+      <workItem from="1698485022535" duration="1308000" />
+      <workItem from="1698519277781" duration="7531000" />
     </task>
     <servers />
   </component>

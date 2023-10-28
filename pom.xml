@@ -42,14 +42,13 @@
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_2.13</artifactId>
-      <version>3.5.0</version>
+      <version>3.2.1</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-sql_2.13</artifactId>
-      <version>3.5.0</version>
+      <version>3.2.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -57,26 +56,31 @@
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
     </dependency>
-
-    <!-- Test -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.1</version>
-      <scope>test</scope>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <version>4.11.0</version>
     </dependency>
     <dependency>
-      <groupId>org.scala-tools.testing</groupId>
-      <artifactId>specs_2.10</artifactId>
-      <version>1.6.9</version>
-      <scope>test</scope>
+      <groupId>org.mongodb.spark</groupId>
+      <artifactId>mongo-spark-connector_2.13</artifactId>
+      <version>10.2.0</version>
     </dependency>
     <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest</artifactId>
-      <version>1.2</version>
-      <scope>test</scope>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.15.2</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.slf4j</groupId>-->
+<!--      <artifactId>slf4j-api</artifactId>-->
+<!--      <version>2.0.7</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.slf4j</groupId>-->
+<!--      <artifactId>slf4j-simple</artifactId>-->
+<!--      <version>2.0.7</version>-->
+<!--    </dependency>-->
   </dependencies>
 
   <build>
@@ -90,7 +94,7 @@
           <useFile>false</useFile>
           <disableXmlReport>true</disableXmlReport>
           <!-- If you have classpath issue like NoDefClassError,... -->
-          <!-- useManifestOnlyJar>false</useManifestOnlyJar -->
+<!--          <useManifestOnlyJar>false</useManifestOnlyJar>-->
           <includes>
             <include>**/*Test.*</include>
             <include>**/*Suite.*</include>
