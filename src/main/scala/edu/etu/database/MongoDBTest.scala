@@ -1,15 +1,14 @@
-package edu.etu
-import org.apache.spark.sql.SparkSession
+package edu.etu.database
+
+import org.apache.log4j.{Level, Logger}
+
 object MongoDBTest {
+  Logger.getLogger("org").setLevel(Level.OFF)   // to suppress redundant logger info
+  Logger.getLogger("akka").setLevel(Level.OFF)
   def main(args: Array[String]): Unit = {
 
-    val spark:SparkSession = SparkSession.builder()
-      .master("local[*]")
-      .appName("MongoSparkConnectorIntro")
-      .config("spark.mongodb.read.connection.uri", s"mongodb+srv://tuna:ouz@supplychainanalysis.bdwzwi6.mongodb.net/supply_chain_db.supply_chain")
-      .config("spark.mongodb.write.connection.uri", s"mongodb+srv://tuna:ouz@supplychainanalysis.bdwzwi6.mongodb.net/supply_chain_db.supply_chain")
-      .getOrCreate()
-
+    val db = new DatabaseConnection()
+    val spark = db.getConnectedSparkSession
 
     val read_df = spark.read.format("mongodb").load()
     read_df.show()
