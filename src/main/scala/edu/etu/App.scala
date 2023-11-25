@@ -16,7 +16,7 @@ object App {
     val analyser = new Analyses(sparkSession)
 
     analyser.readAllData()
-
+    analyser.lateShippingAnalysisBasedOnCountry()
   }
 
 }
