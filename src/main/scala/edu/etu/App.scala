@@ -15,8 +15,12 @@ object App {
     val sparkSession = db.getConnectedSparkSession
     val analyser = new Analyses(sparkSession)
 
-    analyser.readAllData()
-    analyser.lateShippingAnalysisBasedOnCountry()
+    //analyser.readAllData()
+    analyser.lateShippingAnalysisBasedOnCustomerCountry()
+    analyser.lateShippingAnalysisBasedOnCustomerCity()
+    analyser.productCategoryAnalysesBasedOnCustomerCity()
+
+    sparkSession.close()
   }
 
 }
