@@ -14,7 +14,7 @@ object App {
     val db = new DatabaseConnection()
     val analyser = new Analyses(db)
 
-    //analyser.readAllData()
+//    analyser.readAllData()
     analyser.lateShippingAnalysisBasedOnCustomerCountry()
     analyser.lateShippingAnalysisBasedOnCustomerCity()
     analyser.productCategoryAnalysesBasedOnCustomerCountryAndCategory()
@@ -22,6 +22,11 @@ object App {
     analyser.benefitPerOrderAnalysesBasedOnStoreCityAndCategory()
     analyser.mostGivenOrdersAnalysesBasedOnStoreCity()
     analyser.benefitPerOrderAnalysesBasedOnDiscountAndCategory()
+    analyser.benefitPerOrderAnalysesBasedOnCategory()
+    analyser.orderTimeBasedOnCustomerSegment()
+    analyser.categoryAccessBasedOnHour()
+    analyser.categoryAccessBasedOnMonth()
+
   }
 
 }

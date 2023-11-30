@@ -1,11 +1,11 @@
 package edu.etu
 
 import edu.etu.database.DatabaseConnection
-import org.apache.spark.sql.functions.{avg, col, max, when}
+import org.apache.spark.sql.functions.{avg, col, date_format, hour, max, when}
 import org.apache.spark.sql.types.DecimalType
 
 class Analyses(db: DatabaseConnection) {
-  def lateShippingAnalysisBasedOnCustomerCountry(): Unit = {      // Late shipping analyze by customers' country
+  def lateShippingAnalysisBasedOnCustomerCountry(): Unit = {      // Late shipping analysis by customers' country
 
     val collection = "late_ship_customer_country"
     val spark = db.createSparkSession(collection)
@@ -37,7 +37,7 @@ class Analyses(db: DatabaseConnection) {
     spark.close()
   }
 
-  def lateShippingAnalysisBasedOnCustomerCity(): Unit = {       // Late shipping analyze by customers' city
+  def lateShippingAnalysisBasedOnCustomerCity(): Unit = {       // Late shipping analysis by customers' city
 
     val collection = "late_ship_customer_city"
     val spark = db.createSparkSession(collection)
@@ -69,7 +69,7 @@ class Analyses(db: DatabaseConnection) {
     spark.close()
   }
 
-  def productCategoryAnalysesBasedOnCustomerCountryAndCategory(): Unit = {    // Product category analyze by customers' country
+  def productCategoryAnalysesBasedOnCustomerCountryAndCategory(): Unit = {    // Product category analysis by customers' country
 
     val collection = "prod_category_customer_country"
     val spark = db.createSparkSession(collection)
@@ -191,6 +191,150 @@ class Analyses(db: DatabaseConnection) {
       .save()
 
     spark.close()
+  }
+
+  def benefitPerOrderAnalysesBasedOnCategory(): Unit = {    // Benefit per order analysis by product category
+    val collection = "benefit_category"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "category: '$Category Name'" +
+      "benefit: '$Benefit per order'" +
+      "status: '$Order Status'" +
+      "} }"
+
+    val read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val write_df = read_df
+      .filter(col("status") === "COMPLETE")
+      .groupBy("category")
+      .agg(avg("benefit").cast(DecimalType(10, 2)).as("benefit"))
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+
+    write_df.show()
+
+    spark.close()
+  }
+
+  def orderTimeBasedOnCustomerSegment(): Unit = {       // order hour analysis by customer type
+    val collection = "time_segment"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "segment: '$Customer Segment'" +
+      "time: {$toDate: '$order date (DateOrders)'}" +
+      "} }"
+
+    var read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    read_df = read_df.withColumn("time", date_format(col("time"), "HH:mm"))
+    read_df = read_df.withColumn("time",
+      when(hour(col("time")).between(0, 2), "0-2")
+      .when(hour(col("time")).between(2, 4), "2-4")
+      .when(hour(col("time")).between(4, 6), "4-6")
+      .when(hour(col("time")).between(6, 8), "6-8")
+      .when(hour(col("time")).between(8, 10), "8-10")
+      .when(hour(col("time")).between(10, 12), "10-12")
+      .when(hour(col("time")).between(12, 14), "12-14")
+      .when(hour(col("time")).between(14, 16), "14-16")
+      .when(hour(col("time")).between(16, 18), "16-18")
+      .when(hour(col("time")).between(18, 20), "18-20")
+      .when(hour(col("time")).between(20, 22), "20-22")
+      .when(hour(col("time")).between(22, 24), "22-24"))
+
+    val write_df = read_df
+      .groupBy("segment", "time")
+      .count()
+      .withColumnRenamed("count", "n_count")
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+
+    spark.close()
+  }
+
+  def categoryAccessBasedOnHour() : Unit = {      // Access count analysis by category and hour
+    val collection = "category_access_hour"
+    val spark = db.createSparkSessionForAccessLogs(collection)
+
+    val pipeline = "{ $project: { " +
+      "category: '$Category'" +
+      "hour: '$Hour'" +
+      "} }"
+
+    var read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    read_df = read_df.withColumn("hour",
+      when(col("hour").between(0, 2), "0-2")
+        .when(col("hour").between(2, 4), "2-4")
+        .when(col("hour").between(4, 6), "4-6")
+        .when(col("hour").between(6, 8), "6-8")
+        .when(col("hour").between(8, 10), "8-10")
+        .when(col("hour").between(10, 12), "10-12")
+        .when(col("hour").between(12, 14), "12-14")
+        .when(col("hour").between(14, 16), "14-16")
+        .when(col("hour").between(16, 18), "16-18")
+        .when(col("hour").between(18, 20), "18-20")
+        .when(col("hour").between(20, 22), "20-22")
+        .when(col("hour").between(22, 24), "22-24"))
+
+    val write_df = read_df
+      .groupBy("category", "hour")
+      .count()
+      .withColumnRenamed("count", "n_count")
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+  }
+
+  def categoryAccessBasedOnMonth() : Unit = {   // Access count analysis by category and  month
+    val collection = "category_access_month"
+    val spark = db.createSparkSessionForAccessLogs(collection)
+
+    val pipeline = "{ $project: { " +
+      "category: '$Category'" +
+      "month: '$Month'" +
+      "} }"
+
+    val read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val write_df = read_df
+      .groupBy("category", "month")
+      .count()
+      .withColumnRenamed("count", "n_count")
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
   }
 
   def benefitPerOrderAnalysesBasedOnDiscountAndCategory(): Unit = { // Max avg earnings analysis by discount rate and category
