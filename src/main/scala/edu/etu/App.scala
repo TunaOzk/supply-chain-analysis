@@ -12,15 +12,16 @@ object App {
   
   def main(args : Array[String]): Unit = {
     val db = new DatabaseConnection()
-    val sparkSession = db.getConnectedSparkSession
-    val analyser = new Analyses(sparkSession)
+    val analyser = new Analyses(db)
 
     //analyser.readAllData()
     analyser.lateShippingAnalysisBasedOnCustomerCountry()
     analyser.lateShippingAnalysisBasedOnCustomerCity()
-    analyser.productCategoryAnalysesBasedOnCustomerCity()
-
-    sparkSession.close()
+    analyser.productCategoryAnalysesBasedOnCustomerCountryAndCategory()
+    analyser.averageProductPriceAnalysesBasedOnCustomerCityAndCategory()
+    analyser.benefitPerOrderAnalysesBasedOnStoreCityAndCategory()
+    analyser.mostGivenOrdersAnalysesBasedOnStoreCity()
+    analyser.benefitPerOrderAnalysesBasedOnDiscountAndCategory()
   }
 
 }

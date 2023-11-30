@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c3cc11f-6462-41b7-bc88-f4fadfd03a47" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/edu/etu/Analyses.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/edu/etu/Analyses.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/edu/etu/App.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/edu/etu/App.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/edu/etu/database/DatabaseConnection.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/edu/etu/database/DatabaseConnection.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/edu/etu/database/MongoDBTest.scala" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
