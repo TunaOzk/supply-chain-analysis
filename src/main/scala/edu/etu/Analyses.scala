@@ -20,9 +20,15 @@ class Analyses(db: DatabaseConnection) {
       .option("aggregation.pipeline", pipeline)
       .load()
 
-    val write_df = read_df
+    val join_df = spark.read.format("mongodb")
+      .option("spark.mongodb.read.connection.uri", s"mongodb+srv://tuna:ouz" +
+        s"@supplychaindbread.8rqcr4x.mongodb.net/test.country_ico")
+      .load()
+      .join(read_df, "country")
+
+    val write_df = join_df
       .filter(col("real") < col("scheduled"))
-      .groupBy("country")
+      .groupBy("ioc")
       .count()
       .withColumnRenamed("count", "n_count")
 
