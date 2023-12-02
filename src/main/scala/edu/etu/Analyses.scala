@@ -37,6 +37,40 @@ class Analyses(db: DatabaseConnection) {
     spark.close()
   }
 
+  def avgShippingAnalysisBasedOnCustomerCountry(): Unit = {   // avg days of late shipment analysis based on country
+    val collection = "avg_shipment_customer_country"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "country: '$Order Country'," +
+      "scheduled: '$Days for shipment (scheduled)'," +
+      "real: '$Days for shipping (real)'" +
+      "real_minus_scheduled: { $subtract: ['$Days for shipping (real)', '$Days for shipment (scheduled)'] }" +
+      "} }"
+
+    val read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val write_df = read_df
+      .groupBy("country")
+      .avg()
+      .withColumnRenamed("avg(real)", "avg_real")
+      .withColumnRenamed("avg(scheduled)", "avg_scheduled")
+      .withColumnRenamed("avg(real_minus_scheduled)", "real_minus_scheduled")
+      .filter(col("avg(scheduled)") < col("avg(real)"))
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+
+    spark.close()
+  }
+
   def lateShippingAnalysisBasedOnCustomerCity(): Unit = {       // Late shipping analysis by customers' city
 
     val collection = "late_ship_customer_city"

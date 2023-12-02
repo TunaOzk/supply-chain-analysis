@@ -26,6 +26,7 @@ object App {
     analyser.orderTimeBasedOnCustomerSegment()
     analyser.categoryOrderAnalysisBasedOnHour()
     analyser.categoryOrderBasedOnMonth()
+    analyser.avgShippingAnalysisBasedOnCustomerCountry()
 
   }
 
