@@ -24,8 +24,8 @@ object App {
     analyser.benefitPerOrderAnalysesBasedOnDiscountAndCategory()
     analyser.benefitPerOrderAnalysesBasedOnCategory()
     analyser.orderTimeBasedOnCustomerSegment()
-    analyser.categoryAccessBasedOnHour()
-    analyser.categoryAccessBasedOnMonth()
+    analyser.categoryOrderAnalysisBasedOnHour()
+    analyser.categoryOrderBasedOnMonth()
 
   }
 

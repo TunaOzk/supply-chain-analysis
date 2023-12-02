@@ -1,7 +1,7 @@
 package edu.etu
 
 import edu.etu.database.DatabaseConnection
-import org.apache.spark.sql.functions.{avg, col, date_format, hour, max, when}
+import org.apache.spark.sql.functions.{avg, col, date_format, hour, max, month, to_date, when}
 import org.apache.spark.sql.types.DecimalType
 
 class Analyses(db: DatabaseConnection) {
@@ -220,8 +220,6 @@ class Analyses(db: DatabaseConnection) {
       .option("writeConcern.journal", false)
       .save()
 
-    write_df.show()
-
     spark.close()
   }
 
@@ -240,11 +238,11 @@ class Analyses(db: DatabaseConnection) {
 
     read_df = read_df.withColumn("time", date_format(col("time"), "HH:mm"))
     read_df = read_df.withColumn("time",
-      when(hour(col("time")).between(0, 2), "0-2")
-      .when(hour(col("time")).between(2, 4), "2-4")
-      .when(hour(col("time")).between(4, 6), "4-6")
-      .when(hour(col("time")).between(6, 8), "6-8")
-      .when(hour(col("time")).between(8, 10), "8-10")
+      when(hour(col("time")).between(0, 2), "00-02")
+      .when(hour(col("time")).between(2, 4), "02-04")
+      .when(hour(col("time")).between(4, 6), "04-06")
+      .when(hour(col("time")).between(6, 8), "06-08")
+      .when(hour(col("time")).between(8, 10), "08-10")
       .when(hour(col("time")).between(10, 12), "10-12")
       .when(hour(col("time")).between(12, 14), "12-14")
       .when(hour(col("time")).between(14, 16), "14-16")
@@ -269,35 +267,36 @@ class Analyses(db: DatabaseConnection) {
     spark.close()
   }
 
-  def categoryAccessBasedOnHour() : Unit = {      // Access count analysis by category and hour
-    val collection = "category_access_hour"
-    val spark = db.createSparkSessionForAccessLogs(collection)
+  def categoryOrderAnalysisBasedOnHour() : Unit = {      // Order count analysis by category and hour
+    val collection = "time_category"
+    val spark = db.createSparkSession(collection)
 
     val pipeline = "{ $project: { " +
-      "category: '$Category'" +
-      "hour: '$Hour'" +
+      "category: '$Category Name'" +
+      "time: {$toDate: '$order date (DateOrders)'}" +
       "} }"
 
     var read_df = spark.read.format("mongodb")
       .option("aggregation.pipeline", pipeline)
       .load()
 
-    read_df = read_df.withColumn("hour",
-      when(col("hour").between(0, 2), "0-2")
-        .when(col("hour").between(2, 4), "2-4")
-        .when(col("hour").between(4, 6), "4-6")
-        .when(col("hour").between(6, 8), "6-8")
-        .when(col("hour").between(8, 10), "8-10")
-        .when(col("hour").between(10, 12), "10-12")
-        .when(col("hour").between(12, 14), "12-14")
-        .when(col("hour").between(14, 16), "14-16")
-        .when(col("hour").between(16, 18), "16-18")
-        .when(col("hour").between(18, 20), "18-20")
-        .when(col("hour").between(20, 22), "20-22")
-        .when(col("hour").between(22, 24), "22-24"))
+    read_df = read_df.withColumn("time", date_format(col("time"), "HH:mm"))
+    read_df = read_df.withColumn("time",
+      when(hour(col("time")).between(0, 2), "00-02")
+        .when(hour(col("time")).between(2, 4), "02-04")
+        .when(hour(col("time")).between(4, 6), "04-06")
+        .when(hour(col("time")).between(6, 8), "06-08")
+        .when(hour(col("time")).between(8, 10), "08-10")
+        .when(hour(col("time")).between(10, 12), "10-12")
+        .when(hour(col("time")).between(12, 14), "12-14")
+        .when(hour(col("time")).between(14, 16), "14-16")
+        .when(hour(col("time")).between(16, 18), "16-18")
+        .when(hour(col("time")).between(18, 20), "18-20")
+        .when(hour(col("time")).between(20, 22), "20-22")
+        .when(hour(col("time")).between(22, 24), "22-24"))
 
     val write_df = read_df
-      .groupBy("category", "hour")
+      .groupBy("time", "category")
       .count()
       .withColumnRenamed("count", "n_count")
 
@@ -308,23 +307,28 @@ class Analyses(db: DatabaseConnection) {
       .option("writeConcern.w", 0)
       .option("writeConcern.journal", false)
       .save()
+
+    spark.close()
   }
 
-  def categoryAccessBasedOnMonth() : Unit = {   // Access count analysis by category and  month
-    val collection = "category_access_month"
-    val spark = db.createSparkSessionForAccessLogs(collection)
+  def categoryOrderBasedOnMonth() : Unit = {   // order count analysis by category and  month
+    val collection = "month_category"
+    val spark = db.createSparkSession(collection)
 
     val pipeline = "{ $project: { " +
-      "category: '$Category'" +
-      "month: '$Month'" +
+      "category: '$Category Name', " +
+      "month: {$toDate: '$order date (DateOrders)'}" +
       "} }"
 
-    val read_df = spark.read.format("mongodb")
+    var read_df = spark.read.format("mongodb")
       .option("aggregation.pipeline", pipeline)
       .load()
 
+    read_df = read_df.withColumn("month", to_date(col("month"), "MM/dd/yyyy"))
+    read_df = read_df.withColumn("month", month(col("month")))
+
     val write_df = read_df
-      .groupBy("category", "month")
+      .groupBy("month", "category")
       .count()
       .withColumnRenamed("count", "n_count")
 
