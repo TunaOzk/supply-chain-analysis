@@ -1,7 +1,7 @@
 package edu.etu
 
 import edu.etu.database.DatabaseConnection
-import org.apache.spark.sql.functions.{avg, col, date_format, hour, max, month, to_date, when}
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DecimalType
 
 class Analyses(db: DatabaseConnection) {
@@ -379,17 +379,66 @@ class Analyses(db: DatabaseConnection) {
       .option("writeConcern.w", 0)
       .option("writeConcern.journal", false)
       .save()
+
+    spark.close()
+  }
+
+  def changesOfCustomersOrderCountByMonth(): Unit = {
+    val collection = "order_count_by_date"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "date: {$toDate: '$order date (DateOrders)'}" +
+      "} }"
+
+    var read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    read_df = read_df.withColumn("date", to_date(col("date"), "MM/dd/yyyy"))
+      .withColumn("month", month(col("date")))
+      .withColumn("year", year(col("date")))
+
+    read_df = read_df.withColumn("month",
+      when(read_df("month") === 1, "01")
+        .when(read_df("month") === 2, "02")
+        .when(read_df("month") === 3, "03")
+        .when(read_df("month") === 4, "04")
+        .when(read_df("month") === 5, "05")
+        .when(read_df("month") === 6, "06")
+        .when(read_df("month") === 7, "07")
+        .when(read_df("month") === 8, "08")
+        .when(read_df("month") === 9, "09")
+        .otherwise(col("month"))
+    )
+
+    val write_df = read_df
+      .withColumn("month_year", concat(col("year"), lit("-"), col("month")))
+      .groupBy("month_year")
+      .count()
+      .withColumnRenamed("count", "n_count")
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+
+    spark.close()
+
   }
 
   def benefitPerOrderAnalysesBasedOnDiscountAndCategory(): Unit = { // Max avg earnings analysis by discount rate and category
 
-    val collection = "benefit_discount_category"
+    val collection = "sales_per_customer_change_by_discount"
     val spark = db.createSparkSession(collection)
 
     val pipeline = "{ $project: { " +
-      "benefit: '$Benefit per order'," +
       "discount_rate: '$Order Item Discount Rate'" +
       "category: '$Category Name'" +
+      "sales_per_customer: '$Sales per customer'" +
       "status: '$Order Status'" +
       "} }"
 
@@ -398,19 +447,19 @@ class Analyses(db: DatabaseConnection) {
       .load()
 
     read_df = read_df.withColumn("discount_rate",
-      when(read_df("discount_rate") > 0 && read_df("discount_rate") < 0.05, "0-0.05")
-      .when(read_df("discount_rate") >= 0.05 && read_df("discount_rate") < 0.1,"0.05-0.1")
-      .when(read_df("discount_rate") >= 0.1 && read_df("discount_rate") < 0.15,"0.1-0.15")
-      .when(read_df("discount_rate") >= 0.15 && read_df("discount_rate") < 0.2, "0.15-0.2")
-      .when(read_df("discount_rate") >= 0.2 && read_df("discount_rate") <= 0.25, "0.2-0.25")
-    ).filter(col("discount_rate").isNotNull)
+      when(col("discount_rate") > 0 && col("discount_rate") < 0.05, "0.00-0.05")
+      .when(col("discount_rate") >= 0.05 && col("discount_rate") < 0.1,"0.05-0.10")
+      .when(col("discount_rate") >= 0.1 && col("discount_rate") < 0.15,"0.10-0.15")
+      .when(col("discount_rate") >= 0.15 && col("discount_rate") < 0.2, "0.15-0.20")
+      .when(col("discount_rate") >= 0.2 && col("discount_rate") <= 0.25, "0.20-0.25")
+      .otherwise("%0")
+    )
 
     val write_df = read_df
       .filter(col("status") === "COMPLETE")
       .groupBy("category", "discount_rate")
-      .agg(avg("benefit").cast(DecimalType(10,2)).as("benefit"))
-      .groupBy("category", "discount_rate")
-      .agg(max("benefit"))
+      .avg("sales_per_customer")
+      .withColumnRenamed("avg(sales_per_customer)","avg_sale_per_customer")
 
     write_df.write.format("mongodb")
       .mode("append")
