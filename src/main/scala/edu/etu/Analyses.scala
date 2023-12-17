@@ -359,7 +359,6 @@ class Analyses(db: DatabaseConnection) {
       "category: '$Category Name', " +
       "month: {$toDate: '$order date (DateOrders)'}" +
       "} }"
-
     var read_df = spark.read.format("mongodb")
       .option("aggregation.pipeline", pipeline)
       .load()
@@ -460,6 +459,153 @@ class Analyses(db: DatabaseConnection) {
       .groupBy("category", "discount_rate")
       .avg("sales_per_customer")
       .withColumnRenamed("avg(sales_per_customer)","avg_sale_per_customer")
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+
+    spark.close()
+  }
+  def customerOrderCycle(): Unit = {
+    val collection = "customer_order_cycle"
+    val spark = db.createSparkSession(collection)
+    val pipeline = "{ $project: { " +
+      "real: '$Days for shipping (real)'" +
+      "status: '$Order Status'" +
+      "ship_date: {$toDate: '$shipping date (DateOrders)'}" +
+      "order_date: {$toDate: '$order date (DateOrders)'}" +
+      "} }"
+
+    var read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val write_df = read_df
+      .filter(col("status") =!= "CANCELED")
+      .withColumn("diff_in_days", datediff(col("ship_date"), col("order_date")))
+      .filter(col("diff_in_days") >= 0)
+      .agg(avg(col("diff_in_days") + col("real")).as("customer_order_cycle"))
+
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+
+    spark.close()
+  }
+
+  def supplierResponseTime(): Unit = {
+    val collection = "supplier_response_time"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "ship_date: {$toDate: '$shipping date (DateOrders)'}" +
+      "order_date: {$toDate: '$order date (DateOrders)'}" +
+      "status: '$Order Status'" +
+      "} }"
+
+    val read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val write_df = read_df
+      .filter(col("status") =!= "CANCELED")
+      .withColumn("diff_in_days", datediff(col("ship_date"), col("order_date")))
+      .filter(col("diff_in_days") >= 0)
+      .agg(avg("diff_in_days").as("supplier_response_time"))
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+  }
+
+  def perfectOrderIndex(): Unit = {
+    val collection = "perfect_order_index"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "status: '$Order Status'" +
+      "} }"
+
+    val read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val errors_df = read_df
+      .groupBy("status")
+      .count()
+      .filter(col("status") === "CANCELED" || col("status") === "SUSPECTED_FRAUD")
+      .agg(sum("count").as("count_error"))
+
+    val error_free_df = read_df
+      .groupBy("status")
+      .count()
+      .filter(col("status") === "COMPLETE" || col("status") === "CLOSED")
+      .agg(sum("count").as("count_err_free"))
+
+    val write_df = errors_df.join(error_free_df)
+      .withColumn("perfect_order_index",
+        lit(100) * col("count_err_free") / (col("count_err_free") + col("count_error"))
+      )
+      .select("perfect_order_index")
+
+    write_df.write.format("mongodb")
+      .mode("append")
+      .option("maxBatchSize", 2048)
+      .option("operationType", "insert")
+      .option("writeConcern.w", 0)
+      .option("writeConcern.journal", false)
+      .save()
+  }
+
+  def lateShippingAnalysisBasedOnCustomerCountryPercentage(): Unit = { // Late shipping analysis by customers' country
+
+    val collection = "late_ship_customer_country_perc"
+    val spark = db.createSparkSession(collection)
+
+    val pipeline = "{ $project: { " +
+      "country: '$Order Country'," +
+      "scheduled: '$Days for shipment (scheduled)'," +
+      "real: '$Days for shipping (real)'" +
+      "} }"
+
+    val read_df = spark.read.format("mongodb")
+      .option("aggregation.pipeline", pipeline)
+      .load()
+
+    val join_df = spark.read.format("mongodb")
+      .option("spark.mongodb.read.connection.uri", s"mongodb+srv://tuna:ouz" +
+        s"@supplychaindbread.8rqcr4x.mongodb.net/test.country_ico")
+      .load()
+      .join(read_df, "country")
+
+    val late_df = join_df
+      .filter(col("real") < col("scheduled"))
+      .groupBy("ioc")
+      .count()
+      .withColumnRenamed("count", "late")
+
+    val total_df = join_df
+      .groupBy("ioc")
+      .count()
+      .withColumnRenamed("count", "total")
+
+    val write_df = late_df.join(total_df, "ioc")
+      .withColumn("late_percentage", (lit(100) * col("late") / col("total")).cast(DecimalType(10,2)))
+      .select("ioc", "late_percentage")
+
 
     write_df.write.format("mongodb")
       .mode("append")

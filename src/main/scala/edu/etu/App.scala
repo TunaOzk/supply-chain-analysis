@@ -28,7 +28,10 @@ object App {
     analyser.categoryOrderBasedOnMonth()
     analyser.avgShippingAnalysisBasedOnCustomerCountry()
     analyser.changesOfCustomersOrderCountByMonth()
-
+    analyser.customerOrderCycle()
+    analyser.supplierResponseTime()
+    analyser.perfectOrderIndex()
+    analyser.lateShippingAnalysisBasedOnCustomerCountryPercentage()
   }
 
 }
