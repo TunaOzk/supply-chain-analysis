@@ -12,11 +12,26 @@ object App {
   
   def main(args : Array[String]): Unit = {
     val db = new DatabaseConnection()
-    val sparkSession = db.getConnectedSparkSession
-    val analyser = new Analyses(sparkSession)
+    val analyser = new Analyses(db)
 
-    analyser.readAllData()
-
+//    analyser.readAllData()
+    analyser.lateShippingAnalysisBasedOnCustomerCountry()
+    analyser.lateShippingAnalysisBasedOnCustomerCity()
+    analyser.productCategoryAnalysesBasedOnCustomerCountryAndCategory()
+    analyser.averageProductPriceAnalysesBasedOnCustomerCityAndCategory()
+    analyser.benefitPerOrderAnalysesBasedOnStoreCityAndCategory()
+    analyser.mostGivenOrdersAnalysesBasedOnStoreCity()
+    analyser.benefitPerOrderAnalysesBasedOnDiscountAndCategory()
+    analyser.benefitPerOrderAnalysesBasedOnCategory()
+    analyser.orderTimeBasedOnCustomerSegment()
+    analyser.categoryOrderAnalysisBasedOnHour()
+    analyser.categoryOrderBasedOnMonth()
+    analyser.avgShippingAnalysisBasedOnCustomerCountry()
+    analyser.changesOfCustomersOrderCountByMonth()
+    analyser.customerOrderCycle()
+    analyser.supplierResponseTime()
+    analyser.perfectOrderIndex()
+    analyser.lateShippingAnalysisBasedOnCustomerCountryPercentage()
   }
 
 }
